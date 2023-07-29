@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="409dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        tools:layout_editor_absoluteX="1dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="mimblu"
+            android:textColor="@color/primary"
+            android:textSize="24dp"
+            android:textStyle="bold">
+
+        </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginEnd="10dp"
+            android:text="Logout"
+            android:textColor="@color/primary"
+            android:textSize="20dp">
+
+        </TextView>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:id="@+id/l1"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="What led to you mimblu today?"
+            android:textColor="#4E4D4D"
+            android:textSize="25dp"
+            android:textStyle="bold">
+
+        </TextView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_margin="22dp"
+
+            android:layout_marginTop="10dp"
+            android:text="Help us find you the best slecetion of counsellor to choose from"
+            android:textColor="#4E4D4D"
+            android:textSize="18dp"
+           >
+
+        </TextView>
+    </LinearLayout>
+<ListView
+    android:layout_below="@+id/l1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/listview"
+
+    android:choiceMode="multipleChoice">
+
+</ListView>
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/listview"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_margin="10dp"
+        android:id="@+id/btn"
+
+        android:text="Show Me My Matches"
+        android:background="@drawable/bgbtn"/>
+
+
+
+
+</RelativeLayout>
