@@ -1,4 +1,5 @@
 package com.example.mimblu;
+import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,12 +16,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -29,16 +28,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     ListView listView;
     ArrayAdapter<String> adapter;
     Button submit;
-    List<String> symptomsList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,101 +61,49 @@ public class MainActivity extends AppCompatActivity {
     private void fetchSymptomsData() {
         String url = "http://dev.mimblu.com/mimblu-yii2-1552/api/user/symptoms";
 
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.i(TAG, "onResponse: " + response);
+                        try {
+                            // Parse the JSON response into a JSONArray
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONArray jsonArray = jsonObject.getJSONArray("list");
 
+                            List<String> symptomsList = new ArrayList<>();
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                String symptomTitle = jsonArray.getString(i);
+                                symptomsList.add(symptomTitle);
 
-                try
-                {
-                    JSONArray array = new JSONArray(response);
+                                Log.i(TAG, "Symptom Title: " + symptomTitle);
+                            }
 
-                    // Common.progressDialogDismiss(SelectType.this);
-                    Log.d("///", response);
-                    for (int i = 0; i < array.length(); i++)
-                    {
-                        JSONObject object = array.getJSONObject(i);
-                        symptomsList.add(String.valueOf(new model(
-                                object.getString("id"),
-                                object.getString("title"),
-                                object.getString("state_id")
-                                )));
-
-                    }
-//                     Update the ListView adapter with the fetched data
+                            // Update the ListView adapter with the fetched data
                             adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_multiple_choice, symptomsList);
                             listView.setAdapter(adapter);
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-//                    e.printStackTrace();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                             Toast.makeText(MainActivity.this, "Error parsing data", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "Error fetching data", Toast.LENGTH_SHORT).show();
+                        Log.e("API Error", "Error fetching data: " + error.toString());
+                    }
                 }
+        );
 
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "erroe loading", Toast.LENGTH_SHORT).show();
-
-            }
-        });
+        // Add the request to the RequestQueue.
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(request);
+        requestQueue.add(stringRequest);
     }
-
-
-//    private void fetchSymptomsData() {
-//        String url = "http://dev.mimblu.com/mimblu-yii2-1552/api/user/symptoms";
-//
-//        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
-//                Request.Method.GET,
-//                url,
-//                null,
-//                new Response.Listener<JSONArray>() {
-//                    @Override
-//                    public void onResponse(JSONArray response) {
-//                        try {
-//                            // Process the JSON response and extract the symptom data
-//                            List<String> symptomsList = new ArrayList<>();
-//                            for (int i = 0; i < response.length(); i++) {
-//                                String symptom = response.getString(i);
-//                                symptomsList.add(symptom);
-//                            }
-//
-//                            // Update the ListView adapter with the fetched data
-//                            adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_multiple_choice, symptomsList);
-//                            listView.setAdapter(adapter);
-//
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                            Toast.makeText(MainActivity.this, "Error parsing data", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Toast.makeText(MainActivity.this, "Error fetching data", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//        ){
-//
-////            @Override
-////            protected Map<String, String> getParams() throws AuthFailureError {
-////                Map<String, String> map = new HashMap<>();
-////
-////
-////                return map;
-////            }
-//        };
-//
-//        // Add the request to the RequestQueue.
-//        RequestQueue requestQueue = Volley.newRequestQueue(this);
-//        requestQueue.add(jsonArrayRequest);
-//    }
 
     private void updateButtonState() {
         // Check if any items are selected in the ListView
@@ -187,14 +132,19 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.done) {
             String itemSelected = "Selected items:\n";
-            for (int i = 0; i < listView.getCount(); i++) {
-                if (listView.isItemChecked(i)) {
-                    itemSelected += listView.getItemAtPosition(i) + "\n";
-                    listView.setItemChecked(i, false); // Reset the item's selection
+            SparseBooleanArray selectedItems = listView.getCheckedItemPositions();
+            for (int i = 0; i < selectedItems.size(); i++) {
+                int position = selectedItems.keyAt(i);
+                if (selectedItems.valueAt(i)) {
+                    itemSelected += adapter.getItem(position) + "\n";
                 }
             }
 
             Toast.makeText(this, itemSelected, Toast.LENGTH_SHORT).show();
+
+            // Reset selected items
+            listView.clearChoices();
+            updateButtonState();
         }
 
         return super.onOptionsItemSelected(item);

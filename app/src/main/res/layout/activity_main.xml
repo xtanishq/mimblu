@@ -72,7 +72,7 @@
         </TextView>
     </LinearLayout>
 <ListView
-    android:layout_below="@+id/l1"
+    android:layout_below="@+id/btn"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/listview"
@@ -83,7 +83,7 @@
     <androidx.appcompat.widget.AppCompatButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/listview"
+        android:layout_below="@+id/l1"
         android:gravity="center"
         android:layout_marginTop="10dp"
         android:layout_margin="10dp"
